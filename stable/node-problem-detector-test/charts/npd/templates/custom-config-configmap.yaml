@@ -1,9 +1,11 @@
 apiVersion: v1
 data:
+# {{ .Values.settings.custom_monitor_glob }}
 {{- $globbed_custom_monitors := .Files.Glob (default "" .Values.settings.custom_monitor_glob) }}
-{{- range $path, $contentBytes := $globbed_custom_monitors }}
+# {{ $globbed_custom_monitors }}
+{{- range $path, $_ := $globbed_custom_monitors }}
   {{ $path | base }}: |
-    {{- $contentBytes | toString | nindent 4 }}
+    {{- $.Files.Get $path | nindent 4 }}
 {{- end }}
 {{- if .Values.settings.custom_monitor_definitions }}
   {{ .Values.settings.custom_monitor_definitions | toYaml | nindent 2 }}

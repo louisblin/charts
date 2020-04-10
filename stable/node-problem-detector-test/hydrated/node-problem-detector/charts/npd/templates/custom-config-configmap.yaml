@@ -1,0 +1,15 @@
+---
+# Source: node-problem-detector/charts/npd/templates/custom-config-configmap.yaml
+apiVersion: v1
+data:
+# /Users/louisblin/Projects/charts/stable/node-problem-detector-test/custom-monitors/*
+# map[]
+  {}
+kind: ConfigMap
+metadata:
+  name: npd-custom-config
+  labels:
+    app.kubernetes.io/name: npd
+    helm.sh/chart: npd-1.7.0
+    app.kubernetes.io/instance: npd
+    app.kubernetes.io/managed-by: Helm

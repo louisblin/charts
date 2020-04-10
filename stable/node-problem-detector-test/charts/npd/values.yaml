@@ -32,7 +32,7 @@ settings:
   # containing the snippet above. To mount all files in that folder, you would
   # use the following glob:
   # custom_monitor_glob: "custom-monitors/*"
-  custom_monitor_glob: "custom-monitors/*"
+  custom_monitor_glob: ""
 
   log_monitors:
     - /config/kernel-monitor.json

@@ -1,0 +1,73 @@
+---
+# Source: node-problem-detector/charts/npd/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: npd
+  labels:
+    app.kubernetes.io/name: npd
+    helm.sh/chart: npd-1.7.0
+    app.kubernetes.io/instance: npd
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: npd
+      app.kubernetes.io/instance: npd
+      app: npd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: npd
+        app.kubernetes.io/instance: npd
+        app: npd
+      annotations:
+        checksum/config: 59147095a50d469dc31995b3c9dac42c988c69d4c4d60d30c31dfda7fcc8ecfa
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      serviceAccountName: npd
+      hostNetwork: false
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: npd
+          image:  "k8s.gcr.io/node-problem-detector:v0.8.1"
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "exec /node-problem-detector --logtostderr --system-log-monitors=/config/kernel-monitor.json,/config/docker-monitor.json --prometheus-address=0.0.0.0 --prometheus-port=20257 --k8s-exporter-heartbeat-period=5m0s"
+          securityContext:
+            privileged: true
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: log
+              mountPath: /var/log
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            - name: custom-config
+              mountPath: /custom-config
+              readOnly: true
+          ports:
+            - containerPort: 20257
+              name: exporter
+          resources:
+            {}
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+      volumes:
+        - name: log
+          hostPath:
+            path: /var/log/
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: "FileOrCreate"
+        - name: custom-config
+          configMap:
+            name: npd-custom-config
